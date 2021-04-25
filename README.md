@@ -27,7 +27,6 @@ services:
     restart: unless-stopped
     privileged: true
 ```
-```/dev/gpiomem:/dev/gpiomem``` is required to access the GPIO and communicate with your DHT22 sensor. If it doesn't work, you can try to run the container in priviledged mode ```priviledged:true```.
 
 ## Parameters
 The container offers the following configurable environment variables:</br>
@@ -44,6 +43,3 @@ The container offers the following configurable environment variables:</br>
 | ```logging``` | ```log2stdout\|log2file``` | Logging strategy. Possible ***non-mutually exclusive*** values are: ```log2stdout``` - forwards logs to stdout, inspectable through ```docker logs dht22mqtt``` and ```log2file``` which logs temperature and humidity readings to files timestamped at containers' start. | ```none``` |
 | ```filtering``` | ```enabled``` or ```none``` | Enables outlier filtering. Disabling this setting will transmit the raw temperature and humidity values to MQTT and(or) the log. | ```enabled``` |
 ----------------------------------
-
-*If you end up using ```log2file```, make sure to add this volume in your docker run or docker-compose commands ```- ~/yourfolderpath:/log``` to be able to access the logs from your host os.* </br> 
-*If you want to run this container to simply record values to files with no MQTT integration, you need to explicitly set ```mqtt_chatter``` to a blank string. In that case, you can also omit all MQTT related parameters from your docker run or compose configurations.*
