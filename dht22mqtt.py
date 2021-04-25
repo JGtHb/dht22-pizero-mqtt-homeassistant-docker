@@ -4,7 +4,7 @@ import time
 import os
 import statistics
 import csv
-import adafruit_dht
+import Adafruit_DHT
 # import RPi.GPIO as GPIO
 from gpiomapping import gpiomapping
 import paho.mqtt.client as mqtt
@@ -15,9 +15,9 @@ dht22mqtt_start_ts = datetime.now()
 ###############
 # MQTT Params
 ###############
-mqtt_topic = os.getenv('topic', 'zigbee2mqtt/')
-mqtt_device_id = os.getenv('device_id', 'dht22')
-mqtt_brokeraddr = os.getenv('broker', '192.168.1.10')
+mqtt_topic = os.getenv('topic', 'dht22/')
+mqtt_device_id = os.getenv('device_id', 'room1_dht22')
+mqtt_brokeraddr = os.getenv('broker', '192.168.1.2')
 if not mqtt_topic.endswith('/'):
     mqtt_topic = mqtt_topic + "/"
 mqtt_topic = mqtt_topic + mqtt_device_id + '/'
@@ -27,8 +27,8 @@ mqtt_topic = mqtt_topic + mqtt_device_id + '/'
 ###############
 # TODO check if we can use the GPIO test https://github.com/kgbplus/gpiotest to autodetect pin
 # Problems with multiple sensors on the same device
-dht22mqtt_refresh = int(os.getenv('poll', '2'))
-dht22mqtt_pin = int(os.getenv('pin', '4'))
+dht22mqtt_refresh = int(os.getenv('poll', '20'))
+dht22mqtt_pin = int(os.getenv('pin', '2'))
 dht22mqtt_device_type = str(os.getenv('device_type', 'dht22')).lower()
 dht22mqtt_temp_unit = os.getenv('unit', 'C')
 
@@ -182,10 +182,12 @@ def updateFullSysInternalsMqtt(key):
 # Setup dht22 sensor
 ###############
 log2stdout(dht22mqtt_start_ts.timestamp(), 'Starting dht22mqtt...')
-if(dht22mqtt_device_type == 'dht22' or dht22mqtt_device_type == 'am2302'):
-    dhtDevice = adafruit_dht.DHT22(gpiomapping[dht22mqtt_pin], use_pulseio=False)
+if(dht22mqtt_device_type == 'dht22'):
+    dhtDevice = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22,dht22mqtt_pin)
+elif(dht22mqtt_device_type == 'am2302'):
+    dhtDevice = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302,dht22mqtt_pin)
 elif(dht22mqtt_device_type == 'dht11'):
-    dhtDevice = adafruit_dht.DHT11(gpiomapping[dht22mqtt_pin], use_pulseio=False)
+    dhtDevice = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11,dht22mqtt_pin)
 else:
     log2stdout(datetime.now().timestamp(), 'Unsupported device '+dht22mqtt_device_type+'...')
     log2stdout(datetime.now().timestamp(), 'Devices supported by this container are DHT11/DHT22/AM2302')
@@ -234,8 +236,8 @@ log2stdout(datetime.now().timestamp(), 'Begin capture...')
 while True:
     try:
         dht22_ts = datetime.now().timestamp()
-        temperature = getTemperature(dhtDevice.temperature)
-        humidity = getHumidity(dhtDevice.humidity)
+        temperature = getTemperature(dhtDevice[1])
+        humidity = getHumidity(dhtDevice[0])
 
         temp_data = processSensorValue(dht22_temp_stack,
                                        dht22_temp_stack_errors,
