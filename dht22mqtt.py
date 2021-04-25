@@ -261,7 +261,7 @@ while True:
             detected = 'outlier'
 
         # Check if filtering enabled
-        if('enabled' in dht22mqtt_filtering_enabled):
+        if('enabled' in dht22mqtt_filtering_enabled and len(dht22_temp_stack) > 10 and len(dht22_hum_stack) > 10):
             updateEssentialMqtt(temperature, humidity, detected)
         else:
             updateEssentialMqtt(temperature, humidity, 'bypass')
