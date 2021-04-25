@@ -6,7 +6,6 @@ import statistics
 import csv
 import Adafruit_DHT
 # import RPi.GPIO as GPIO
-from gpiomapping import gpiomapping
 import paho.mqtt.client as mqtt
 
 # Begin
@@ -25,8 +24,6 @@ mqtt_topic = mqtt_topic + mqtt_device_id + '/'
 ###############
 # GPIO params
 ###############
-# TODO check if we can use the GPIO test https://github.com/kgbplus/gpiotest to autodetect pin
-# Problems with multiple sensors on the same device
 dht22mqtt_refresh = int(os.getenv('poll', '20'))
 dht22mqtt_pin = int(os.getenv('pin', '2'))
 dht22mqtt_device_type = str(os.getenv('device_type', 'dht22')).lower()
